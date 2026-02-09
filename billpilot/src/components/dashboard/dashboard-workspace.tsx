@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   FormEvent,
@@ -1126,41 +1126,53 @@ export function DashboardWorkspace() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-        <h2 className="text-xl font-semibold">Workspaces</h2>
-        <p className="text-sm text-zinc-600">
-          Jump between utility billing and AI receptionist operations.
-        </p>
+      {!showAdminPanels ? (
+        <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-semibold">Quick start</h2>
+          <p className="text-sm text-zinc-600">
+            Follow the steps below to upload your first bill and see results.
+          </p>
+          <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-zinc-700">
+            <li>Sign in with your email using the magic link above.</li>
+            <li>Create or select a property.</li>
+            <li>Upload a bill or paste bill text to analyze.</li>
+          </ol>
+        </section>
+      ) : (
+        <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-semibold">Workspaces</h2>
+          <p className="text-sm text-zinc-600">
+            Jump between utility billing and AI receptionist operations.
+          </p>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
-          >
-            Billing workspace
-          </Link>
-          <Link
-            href="/dashboard/reception"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
-          >
-            Reception workspace
-          </Link>
-          <Link
-            href="/dashboard/dispatch"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
-          >
-            Dispatch optimizer
-          </Link>
-          {showAdminPanels ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
+            >
+              Billing workspace
+            </Link>
+            <Link
+              href="/dashboard/reception"
+              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
+            >
+              Reception workspace
+            </Link>
+            <Link
+              href="/dashboard/dispatch"
+              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
+            >
+              Dispatch optimizer
+            </Link>
             <Link
               href="/api/health"
               className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
             >
               Open health JSON
             </Link>
-          ) : null}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {showAdminPanels ? (
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
@@ -1168,7 +1180,7 @@ export function DashboardWorkspace() {
           <div>
             <h2 className="text-xl font-semibold">Launch checklist</h2>
             <p className="text-sm text-zinc-600">
-              Minimal flow: sign in → property → bill data → report setup → deploy.
+              Minimal flow: sign in, then add a property, then upload bill data, then configure reports.
             </p>
           </div>
           <button
@@ -1408,9 +1420,11 @@ export function DashboardWorkspace() {
         <p className="text-sm text-zinc-600">
           Free tier: 2 analyses/month. Upgrade for unlimited analyses.
         </p>
-        <p className="mt-2 text-xs text-zinc-600">
-          Route + Margin Optimizer add-on: $149–$599/mo depending on dispatch volume.
-        </p>
+        {showAdminPanels ? (
+          <p className="mt-2 text-xs text-zinc-600">
+            Route + Margin Optimizer add-on: $149-$599/mo depending on dispatch volume.
+          </p>
+        ) : null}
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
           <span className="rounded-full bg-zinc-100 px-3 py-1">
@@ -1448,14 +1462,16 @@ export function DashboardWorkspace() {
           >
             Manage billing
           </button>
-          <button
-            type="button"
-            disabled={stripeStatusLoading}
-            onClick={() => void loadStripeStatus()}
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
-          >
-            {stripeStatusLoading ? "Refreshing..." : "Refresh diagnostics"}
-          </button>
+          {showAdminPanels ? (
+            <button
+              type="button"
+              disabled={stripeStatusLoading}
+              onClick={() => void loadStripeStatus()}
+              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+            >
+              {stripeStatusLoading ? "Refreshing..." : "Refresh diagnostics"}
+            </button>
+          ) : null}
         </div>
       </section>
 
@@ -1981,3 +1997,7 @@ export function DashboardWorkspace() {
     </div>
   );
 }
+
+
+
+
