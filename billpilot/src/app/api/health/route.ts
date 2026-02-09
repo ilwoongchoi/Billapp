@@ -3,6 +3,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getServiceSupabaseClient } from "@/lib/supabase";
 
+// Ensure this endpoint always runs with Node.js runtime (process.env available)
+// and is never statically cached across deployments.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const CORE_KEYS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
