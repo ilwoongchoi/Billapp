@@ -23,7 +23,10 @@ function rowPeriod(row: BillHistoryRow): string {
   return `${start} to ${end}`;
 }
 
-export function buildCsv(rows: BillHistoryRow[]): string {
+export function buildCsv(
+  rows: BillHistoryRow[],
+  verification?: { verificationId: string; verificationChecksum: string },
+): string {
   const headers = [
     "bill_id",
     "property_id",
@@ -66,6 +69,11 @@ export function buildCsv(rows: BillHistoryRow[]): string {
     );
   }
 
+  if (verification) {
+    lines.push("", "# verification_id=" + verification.verificationId);
+    lines.push("# verification_checksum=" + verification.verificationChecksum);
+  }
+
   return lines.join("\n");
 }
 
@@ -95,7 +103,10 @@ function writePdfRows(doc: PdfDoc, rows: BillHistoryRow[]) {
   }
 }
 
-export async function buildPdf(rows: BillHistoryRow[]): Promise<Buffer> {
+export async function buildPdf(
+  rows: BillHistoryRow[],
+  verification?: { verificationId: string; verificationChecksum: string },
+): Promise<Buffer> {
   const doc = new PDFDocument({
     size: "A4",
     margin: 40,
@@ -118,6 +129,13 @@ export async function buildPdf(rows: BillHistoryRow[]): Promise<Buffer> {
     doc.text("No data available for this export.");
   } else {
     writePdfRows(doc, rows);
+  }
+
+  if (verification) {
+    doc.moveDown(1);
+    doc.fontSize(8).fillColor("#666").text(`Verification ID: ${verification.verificationId}`);
+    doc.text(`Checksum: ${verification.verificationChecksum}`);
+    doc.fillColor("#000");
   }
 
   doc.end();

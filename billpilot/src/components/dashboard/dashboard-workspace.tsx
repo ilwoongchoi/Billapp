@@ -328,6 +328,7 @@ export function DashboardWorkspace() {
     null,
   );
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [showCheckoutBanner, setShowCheckoutBanner] = useState(false);
 
   const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "";
   const isAdminRoute =
@@ -428,6 +429,10 @@ export function DashboardWorkspace() {
       setProperties(data.properties);
       setSubscription(data.subscription);
       setQuota(data.quota);
+      const onFreePlan = (data.subscription.plan ?? "free") === "free";
+      const nearLimit =
+        data.quota.enforced && data.quota.limit !== null && (data.quota.remaining ?? 0) <= 1;
+      setShowCheckoutBanner(onFreePlan && nearLimit);
       setSelectedPropertyId((current) => {
         if (current && data.properties.some((row) => row.id === current)) {
           return current;
@@ -1070,6 +1075,40 @@ export function DashboardWorkspace() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <p className="text-sm text-zinc-600">Manage bills, exports, and reports.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {healthStatus && (
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${
+                healthStatus.status === "ok"
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-amber-100 text-amber-800"
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  healthStatus.status === "ok" ? "bg-emerald-500" : "bg-amber-500"
+                }`}
+              />
+              {healthStatus.status === "ok" ? "Healthy" : "Degraded"}
+            </span>
+          )}
+          {showCheckoutBanner && (
+            <button
+              type="button"
+              onClick={() => setCheckoutNotice("Free tier nearly exhausted. Upgrade recommended.")}
+              className="rounded-full bg-black px-3 py-1 text-xs font-semibold text-white shadow-sm"
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
+      </div>
+
       {checkoutNotice && (
         <section className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {checkoutNotice}
@@ -1848,76 +1887,63 @@ export function DashboardWorkspace() {
             {propertiesLoading ? "Saving..." : "Create property"}
           </button>
         </form>
-      </section>
 
-      <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Bill history</h2>
-            <p className="text-sm text-zinc-600">
-              Recent persisted analyses for the active property.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs">
-              {historyPageStart}-{historyPageEnd} / {historyPage.total}
-            </span>
-            <button
-              type="button"
-              disabled={seedDemoLoading || !selectedPropertyId}
-              onClick={() => void seedDemoBills(false)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              {seedDemoLoading ? "Seeding..." : "Seed demo data"}
-            </button>
-            <button
-              type="button"
-              disabled={seedDemoLoading || !selectedPropertyId}
-              onClick={() => void seedDemoBills(true)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              {seedDemoLoading ? "Seeding..." : "Replace with demo"}
-            </button>
-            <button
-              type="button"
-              disabled={historyLoading || historyPage.offset === 0 || !selectedPropertyId}
-              onClick={() =>
-                setHistoryPage((current) => ({
-                  ...current,
-                  offset: Math.max(0, current.offset - current.limit),
-                }))
-              }
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <button
-              type="button"
-              disabled={
-                historyLoading ||
-                !historyPage.hasMore ||
-                historyRows.length === 0 ||
-                !selectedPropertyId
-              }
-              onClick={() =>
-                setHistoryPage((current) => ({
-                  ...current,
-                  offset: current.offset + current.limit,
-                }))
-              }
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              Next
-            </button>
-            <button
-              type="button"
-              disabled={historyLoading || !selectedPropertyId}
-              onClick={() => void loadBillHistory()}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              {historyLoading ? "Refreshing..." : "Refresh"}
-            </button>
-          </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={seedDemoLoading || !selectedPropertyId}
+            onClick={() => void seedDemoBills(false)}
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            {seedDemoLoading ? "Seeding..." : "Seed demo data"}
+          </button>
+          <button
+            type="button"
+            disabled={seedDemoLoading || !selectedPropertyId}
+            onClick={() => void seedDemoBills(true)}
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            {seedDemoLoading ? "Seeding..." : "Replace with demo"}
+          </button>
+          <button
+            type="button"
+            disabled={historyLoading || historyPage.offset === 0 || !selectedPropertyId}
+            onClick={() =>
+              setHistoryPage((current) => ({
+                ...current,
+                offset: Math.max(0, current.offset - current.limit),
+              }))
+            }
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <button
+            type="button"
+            disabled={
+              historyLoading ||
+              !historyPage.hasMore ||
+              historyRows.length === 0 ||
+              !selectedPropertyId
+            }
+            onClick={() =>
+              setHistoryPage((current) => ({
+                ...current,
+                offset: current.offset + current.limit,
+              }))
+            }
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            Next
+          </button>
+          <button
+            type="button"
+            disabled={historyLoading || !selectedPropertyId}
+            onClick={() => void loadBillHistory()}
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            {historyLoading ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
 
         <div className="mt-3 overflow-x-auto">
@@ -1954,9 +1980,7 @@ export function DashboardWorkspace() {
                     <td className="px-2 py-2">
                       {row.periodStart ?? "-"} to {row.periodEnd ?? "-"}
                     </td>
-                    <td className="px-2 py-2">
-                      {asCurrency(row.totalCost, row.currency)}
-                    </td>
+                    <td className="px-2 py-2">{asCurrency(row.totalCost, row.currency)}</td>
                     <td className="px-2 py-2">
                       {row.usageValue ?? "-"} {row.usageUnit ?? ""}
                     </td>
@@ -1999,7 +2023,3 @@ export function DashboardWorkspace() {
     </div>
   );
 }
-
-
-
-

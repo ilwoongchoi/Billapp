@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { hashTextInputs, newEventId } from "@/lib/audit-utils";
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
+import { isDebugRequest } from "@/lib/debug";
 import { getAnalysisQuota } from "@/lib/billing/quota";
 import { estimateParseConfidence } from "@/lib/parser/confidence";
 import { extractTextFromFile } from "@/lib/parser/extractText";
@@ -317,6 +318,19 @@ export async function POST(request: Request) {
       }
     }
 
+    const debug = isDebugRequest(request)
+      ? {
+          eventId,
+          inputHash,
+          residuals: insightOutput.insights
+            .filter((insight) => typeof insight.residual === "number")
+            .map((insight) => insight.residual),
+          expectedCost: insightOutput.expectedCost,
+          expectedUsage: insightOutput.expectedUsage,
+          decision: insightOutput.decision,
+        }
+      : undefined;
+
     return NextResponse.json({
       modelVersion,
       eventId,
@@ -333,6 +347,7 @@ export async function POST(request: Request) {
       quota: responseQuota,
       persistedBillId,
       persistenceError,
+      debug,
     });
   } catch (error) {
     if (error instanceof ApiAuthError) {

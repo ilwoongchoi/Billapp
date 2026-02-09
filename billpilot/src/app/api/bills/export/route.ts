@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { hashTextInputs, newEventId } from "@/lib/audit-utils";
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
 import {
   BillHistoryQueryError,
   getBillHistoryForUser,
 } from "@/lib/bills/history-query";
 import { buildCsv, buildPdf } from "@/lib/reports/export-builders";
+import { isDebugRequest } from "@/lib/debug";
 
 export const runtime = "nodejs";
 
@@ -49,28 +51,39 @@ export async function GET(request: Request) {
       limit: query.limit,
     });
 
+    const verificationId = newEventId("export");
+    const verificationChecksum = hashTextInputs(rows.map((row) => row.id));
+
     const scope = query.propertyId
       ? safeFilenamePart(query.propertyId)
       : "all-properties";
     const stamp = toIsoDateString();
 
     if (query.format === "csv") {
-      const csv = buildCsv(rows);
+      const csv = buildCsv(rows, { verificationId, verificationChecksum });
       return new NextResponse(csv, {
         headers: {
           "Content-Type": "text/csv; charset=utf-8",
           "Content-Disposition": `attachment; filename="billpilot-${scope}-${stamp}.csv"`,
           "Cache-Control": "no-store",
+          "X-Billpilot-Verification": `${verificationId}:${verificationChecksum}`,
+          ...(isDebugRequest(request)
+            ? { "X-Billpilot-Debug": JSON.stringify({ verificationId, verificationChecksum }) }
+            : {}),
         },
       });
     }
 
-    const pdf = await buildPdf(rows);
+    const pdf = await buildPdf(rows, { verificationId, verificationChecksum });
     return new NextResponse(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="billpilot-${scope}-${stamp}.pdf"`,
         "Cache-Control": "no-store",
+        "X-Billpilot-Verification": `${verificationId}:${verificationChecksum}`,
+        ...(isDebugRequest(request)
+          ? { "X-Billpilot-Debug": JSON.stringify({ verificationId, verificationChecksum }) }
+          : {}),
       },
     });
   } catch (error) {

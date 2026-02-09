@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { newEventId } from "@/lib/audit-utils";
+import { isDebugRequest } from "@/lib/debug";
 import { getServiceSupabaseClient } from "@/lib/supabase";
 
 // Ensure this endpoint always runs with Node.js runtime (process.env available)
@@ -176,6 +178,7 @@ function buildDeploymentSummary(input: {
 }
 
 export async function GET() {
+  const eventId = newEventId("health");
   const core = checkEnv(CORE_KEYS);
 
   const billingAnyConfigured = FEATURE_KEYS.billing.some((key) =>
@@ -211,6 +214,7 @@ export async function GET() {
   const payload = {
     status,
     timestamp: new Date().toISOString(),
+    eventId,
     core,
     features: {
       billing: {
@@ -230,6 +234,17 @@ export async function GET() {
       supabase: supabaseRuntime,
     },
     deployment,
+    debug: isDebugRequest((arguments as unknown as [Request])[0] ?? ({} as Request))
+      ? {
+          eventId,
+          supabaseRuntime,
+          env: {
+            billingAnyConfigured,
+            reportsAnyConfigured,
+            receptionAnyConfigured,
+          },
+        }
+      : undefined,
   };
 
   return NextResponse.json(payload, { status: status === "ok" ? 200 : 503 });

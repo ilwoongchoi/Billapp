@@ -34,6 +34,8 @@ interface ParseResponse {
   decision: "SHIP" | "NO-SHIP" | "BOUNDARY-BAND ONLY";
   requiresManualReview: boolean;
   priorBillsUsed: number;
+  eventId: string;
+  inputHash: string;
   bill: {
     provider: string | null;
     periodStart: string | null;
@@ -98,6 +100,9 @@ export function BillParserConsole({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadingParse, setLoadingParse] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [reportNote, setReportNote] = useState("");
+  const [reportFeedback, setReportFeedback] = useState<string | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     setPropertyId(initialPropertyId);
@@ -165,10 +170,56 @@ export function BillParserConsole({
     }
   };
 
+  const handleReportIssue = async () => {
+    if (!parseResult) return;
+    if (!authToken) {
+      setReportFeedback("Sign in to send issue reports.");
+      return;
+    }
+
+    setReportLoading(true);
+    setReportFeedback(null);
+
+    try {
+      const response = await fetch("/api/issues/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(authHeaders ?? {}),
+        },
+        body: JSON.stringify({
+          message: reportNote.trim() || "Parsing issue - please investigate",
+          eventId: parseResult.eventId,
+          inputHash: parseResult.inputHash,
+          source: "parse_console",
+          context: {
+            provider: parseResult.bill.provider,
+            decision: parseResult.decision,
+            confidence: parseResult.parseConfidence,
+          },
+        }),
+      });
+
+      const payload = (await response.json()) as { status?: string; error?: string; message?: string };
+      if (!response.ok) {
+        throw new Error(payload.message ?? payload.error ?? "Report failed");
+      }
+
+      setReportFeedback("Issue reported with verification ID " + (payload as any).verificationId);
+      setReportNote("");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Report failed.";
+      setReportFeedback(message);
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const handleParse = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
     setParseResult(null);
+    setReportFeedback(null);
 
     const hasRawText = rawText.trim().length >= 20;
     const hasFile = Boolean(selectedFile);
@@ -360,6 +411,9 @@ export function BillParserConsole({
             <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold">
               Manual review: {parseResult.requiresManualReview ? "yes" : "no"}
             </span>
+            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold">
+              eventId: {parseResult.eventId}
+            </span>
           </div>
 
           <p className="text-sm text-zinc-700">{quotaText}</p>
@@ -411,6 +465,34 @@ export function BillParserConsole({
               ? `(persistence error: ${parseResult.persistenceError})`
               : ""}
           </p>
+          <div className="mt-3 space-y-2 rounded-lg border border-zinc-200 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">Report an issue</p>
+                <p className="text-xs text-zinc-600">
+                  Sends eventId/inputHash and your note to support for investigation.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="rounded-md border border-zinc-300 px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                onClick={handleReportIssue}
+                disabled={reportLoading}
+              >
+                {reportLoading ? "Sending..." : "Report"}
+              </button>
+            </div>
+            <textarea
+              value={reportNote}
+              onChange={(event) => setReportNote(event.target.value)}
+              placeholder="What went wrong?"
+              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              rows={3}
+            />
+            {reportFeedback && (
+              <p className="text-xs text-zinc-600">{reportFeedback}</p>
+            )}
+          </div>
         </div>
       )}
     </div>

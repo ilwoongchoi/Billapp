@@ -4,6 +4,7 @@ import { z } from "zod";
 import { hashDispatchInputs, newEventId } from "@/lib/audit-utils";
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
 import { scoreDispatchRoute } from "@/lib/dispatch/optimizer";
+import { isDebugRequest } from "@/lib/debug";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,17 @@ export async function POST(request: Request) {
     const inputHash = hashDispatchInputs(payload.route, payload.controls);
     const modelVersion = process.env.BILLPILOT_MODEL_VERSION || "billpilot-mvp";
 
+    const debug = isDebugRequest(request)
+      ? {
+          eventId,
+          inputHash,
+          residual: result.residual,
+          observables: result.observables,
+          decision: result.decision ?? null,
+          phase: result.phase,
+        }
+      : undefined;
+
     return NextResponse.json({
       userId: user.id,
       scoredAt: new Date().toISOString(),
@@ -55,6 +67,7 @@ export async function POST(request: Request) {
       route: payload.route,
       controls: payload.controls,
       result,
+      debug,
     });
   } catch (error) {
     if (error instanceof ApiAuthError) {
