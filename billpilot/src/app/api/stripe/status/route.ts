@@ -4,6 +4,8 @@ import { ApiAuthError, requireApiUser } from "@/lib/auth";
 import { getServiceSupabaseClient } from "@/lib/supabase";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface SubscriptionRow {
   plan: string | null;

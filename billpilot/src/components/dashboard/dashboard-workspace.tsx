@@ -329,11 +329,18 @@ export function DashboardWorkspace() {
   );
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
+  const adminEmail = "iwchoikr@gmail.com";
+  const isAdminRoute =
+    typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+  const isAdminUser =
+    Boolean(userEmail) && userEmail?.toLowerCase() === adminEmail.toLowerCase();
+  const showAdminPanels = isAdminRoute && isAdminUser;
+
   useEffect(() => {
     const checkout = searchParams.get("checkout");
     if (checkout === "success") {
       setCheckoutNotice(
-        "Checkout completed. Webhook sync may take a few seconds; use Refresh diagnostics below.",
+        "Payment completed. It may take a few seconds for your plan to update. Refresh the page if needed.",
       );
     } else if (checkout === "cancel") {
       setCheckoutNotice("Checkout was canceled. Your plan has not changed.");
@@ -1049,6 +1056,18 @@ export function DashboardWorkspace() {
       ? 0
       : Math.min(historyPage.offset + historyRows.length, historyPage.total);
 
+  if (isAdminRoute && !authLoading && authToken && !isAdminUser) {
+    return (
+      <section className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-900">
+        <div className="font-semibold">Admin access denied</div>
+        <div className="mt-1">
+          Sign in with <span className="font-mono">{adminEmail}</span> to access the
+          admin console.
+        </div>
+      </section>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {checkoutNotice && (
@@ -1132,15 +1151,18 @@ export function DashboardWorkspace() {
           >
             Dispatch optimizer
           </Link>
-          <Link
-            href="/api/health"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
-          >
-            Open health JSON
-          </Link>
+          {showAdminPanels ? (
+            <Link
+              href="/api/health"
+              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
+            >
+              Open health JSON
+            </Link>
+          ) : null}
         </div>
       </section>
 
+      {showAdminPanels ? (
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -1202,7 +1224,9 @@ export function DashboardWorkspace() {
           </Link>
         </div>
       </section>
+      ) : null}
 
+      {showAdminPanels ? (
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-xl font-semibold">System health</h2>
         <p className="text-sm text-zinc-600">
@@ -1377,6 +1401,7 @@ export function DashboardWorkspace() {
           </Link>
         </div>
       </section>
+      ) : null}
 
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-xl font-semibold">Billing</h2>
@@ -1667,6 +1692,7 @@ export function DashboardWorkspace() {
         </div>
       </section>
 
+      {showAdminPanels ? (
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-xl font-semibold">Webhook diagnostics</h2>
         <p className="text-sm text-zinc-600">
@@ -1725,6 +1751,7 @@ export function DashboardWorkspace() {
           </table>
         </div>
       </section>
+      ) : null}
 
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-xl font-semibold">Properties</h2>
