@@ -68,7 +68,7 @@ export default function HomePage() {
             Starter plan
           </p>
           <p className="mt-2 text-4xl font-bold">
-            £9<span className="text-lg font-normal text-zinc-500">/month</span>
+            $9<span className="text-lg font-normal text-zinc-500">/month</span>
           </p>
           <ul className="mt-4 space-y-2 text-left text-sm text-zinc-700">
             <li className="flex items-start gap-2">

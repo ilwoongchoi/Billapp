@@ -329,7 +329,7 @@ export function DashboardWorkspace() {
   );
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
-  const adminEmail = "iwchoikr@gmail.com";
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "iwchoikr@gmail.com";
   const isAdminRoute =
     typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
   const isAdminUser =
@@ -1452,7 +1452,7 @@ export function DashboardWorkspace() {
             onClick={() => startCheckout("starter")}
             className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
-            Upgrade (£9/mo)
+            Upgrade ($9/mo)
           </button>
           <button
             type="button"
@@ -1541,16 +1541,18 @@ export function DashboardWorkspace() {
         </div>
 
         <p className="mt-3 text-xs text-zinc-600">
-          Insights total/high/watch: {analyticsSummary?.summary.insightTotal ?? 0}/
-          {analyticsSummary?.summary.insightHigh ?? 0}/
-          {analyticsSummary?.summary.insightWatch ?? 0}
+          Insights: {analyticsSummary?.summary.insightTotal ?? 0} total &middot;{" "}
+          {analyticsSummary?.summary.insightHigh ?? 0} high &middot;{" "}
+          {analyticsSummary?.summary.insightWatch ?? 0} watch
         </p>
-        <p className="mt-1 text-xs text-zinc-600">
-          Forecast confidence: {analyticsForecast?.confidence ?? "none"} | sample=
-          {analyticsForecast?.sampleSize ?? 0} bills | method=
-          {analyticsForecast?.method ?? "insufficient_data"} | rmse=
-          {analyticsForecast?.rmse ?? "-"}
-        </p>
+        {showAdminPanels ? (
+          <p className="mt-1 text-xs text-zinc-600">
+            Forecast confidence: {analyticsForecast?.confidence ?? "none"} | sample=
+            {analyticsForecast?.sampleSize ?? 0} bills | method=
+            {analyticsForecast?.method ?? "insufficient_data"} | rmse=
+            {analyticsForecast?.rmse ?? "-"}
+          </p>
+        ) : null}
       </section>
 
       <section
@@ -1964,7 +1966,7 @@ export function DashboardWorkspace() {
                         : "-"}
                     </td>
                     <td className="px-2 py-2">
-                      total={row.insightTotal} high={row.insightHigh} watch={row.insightWatch}
+                      {row.insightTotal} / {row.insightHigh} / {row.insightWatch}
                     </td>
                   </tr>
                 ))
