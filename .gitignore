@@ -1,0 +1,8 @@
+﻿node_modules/
+.next/
+dist/
+.venv/
+*.db
+outputs/
+**/vite.dev.err.log
+**/vite.dev.out.log

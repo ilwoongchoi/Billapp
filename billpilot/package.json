@@ -1,0 +1,44 @@
+{
+  "name": "billpilot",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "preflight": "node scripts/preflight.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "dev:smoke": "node scripts/dev-smoke.mjs",
+    "perf:parse": "node scripts/perf-parse.mjs",
+    "dev:perf:parse": "node scripts/dev-perf-parse.mjs",
+    "deploy:check": "npm run preflight && npm run lint && npm run build",
+    "qa:runtime": "npm run dev:smoke && npm run dev:perf:parse",
+    "qa:local": "npm run deploy:check && npm run dev:smoke",
+    "qa:full": "npm run deploy:check && npm run qa:runtime"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
+    "next": "16.1.6",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.17.2",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "recharts": "^3.7.0",
+    "resend": "^6.9.1",
+    "stripe": "^20.3.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.32",
+    "@types/pdfkit": "^0.17.4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "supabase": "^2.76.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
