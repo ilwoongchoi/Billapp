@@ -1413,23 +1413,7 @@ export function DashboardWorkspace() {
             onClick={() => startCheckout("starter")}
             className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
-            Upgrade to Starter ($9/mo)
-          </button>
-          <button
-            type="button"
-            disabled={billingLoading}
-            onClick={() => startCheckout("pro")}
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
-          >
-            Upgrade to Pro ($19/mo)
-          </button>
-          <button
-            type="button"
-            disabled={billingLoading}
-            onClick={() => startCheckout("team")}
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
-          >
-            Upgrade to Team ($49/mo)
+            Upgrade (£9/mo)
           </button>
           <button
             type="button"

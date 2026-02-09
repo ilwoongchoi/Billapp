@@ -17,13 +17,8 @@ const CORE_KEYS = [
 ] as const;
 
 const FEATURE_KEYS = {
-  billing: [
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "STRIPE_STARTER_PRICE_ID",
-    "STRIPE_PRO_PRICE_ID",
-    "STRIPE_TEAM_PRICE_ID",
-  ],
+  // Billing can run as a single-plan setup (Starter only). Pro/Team price IDs are optional.
+  billing: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_STARTER_PRICE_ID"],
   reports: ["RESEND_API_KEY", "REPORTS_FROM_EMAIL", "MONTHLY_REPORT_CRON_SECRET"],
   reception: [
     "TWILIO_ACCOUNT_SID",
