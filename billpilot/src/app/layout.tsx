@@ -13,8 +13,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BillPilot",
-  description: "Utility bill analyzer with parsing, anomaly insights, and billing gates.",
+  title: "BillPilot — Stop Overpaying on Utility Bills",
+  description: "Upload your electricity, gas, or water bill and get instant analysis. Detect overcharges, track costs, and receive monthly reports.",
+  openGraph: {
+    title: "BillPilot — Stop Overpaying on Utility Bills",
+    description: "Upload your utility bill and get instant analysis. Detect overcharges, track costs over time.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BillPilot — Stop Overpaying on Utility Bills",
+    description: "Upload your utility bill and get instant analysis. Detect overcharges, track costs over time.",
+  },
 };
 
 export default function RootLayout({

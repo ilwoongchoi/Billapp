@@ -100,13 +100,16 @@ export default function HomePage() {
           </Link>
         </section>
 
-        <footer className="flex flex-wrap justify-center gap-4 border-t border-zinc-200 pt-6 text-xs text-zinc-500">
+        <footer className="flex flex-wrap items-center justify-center gap-4 border-t border-zinc-200 pt-6 text-xs text-zinc-500">
           <Link href="/terms" className="underline">
             Terms
           </Link>
           <Link href="/privacy" className="underline">
             Privacy
           </Link>
+          <a href="mailto:support@billpilot.app" className="underline">
+            Contact
+          </a>
         </footer>
       </div>
     </main>

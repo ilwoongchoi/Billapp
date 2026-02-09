@@ -329,7 +329,7 @@ export function DashboardWorkspace() {
   );
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "iwchoikr@gmail.com";
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "";
   const isAdminRoute =
     typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
   const isAdminUser =

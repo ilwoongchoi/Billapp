@@ -8,9 +8,9 @@ export default function TermsPage() {
           <Link href="/" className="text-sm text-blue-600 underline">
             Back to home
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight">Terms of Service (MVP)</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
           <p className="text-sm text-zinc-600">
-            Last updated: {new Date().toISOString().slice(0, 10)}
+            Last updated: 2026-02-09
           </p>
         </div>
 
@@ -52,7 +52,8 @@ export default function TermsPage() {
 
           <h2 className="text-base font-semibold">6) Contact</h2>
           <p>
-            For support, contact the site operator listed on the deployment landing page.
+            For support, contact us at{" "}
+            <a href="mailto:support@billpilot.app" className="text-blue-600 underline">support@billpilot.app</a>.
           </p>
         </section>
       </div>

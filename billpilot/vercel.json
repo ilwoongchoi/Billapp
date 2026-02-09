@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/reports/monthly/run",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/reception/reminders/run",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/reception/reschedule-requests/escalate",
+      "schedule": "0 */2 * * *"
+    }
+  ]
+}
